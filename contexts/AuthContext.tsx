@@ -36,6 +36,7 @@ export function AuthProvider({children}: AuthProviderProps) {
       api.get('/me').then(response => {
         const { email, permissions, roles } = response.data;
 
+
         setUser({
           email,
           permissions,
@@ -52,6 +53,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         email,
         password
       })
+      
 
       const {token, refreshToken, permissions, roles } = response.data;
 
@@ -60,7 +62,7 @@ export function AuthProvider({children}: AuthProviderProps) {
         path: '/' //qualquer endereço terá acesso
       });
 
-      setCookie(undefined, 'nextauth.refreshToken', token, {
+      setCookie(undefined, 'nextauth.refreshToken', refreshToken, {
         maxAge: 60 * 60 * 24 *30,
         path: '/'
       });
