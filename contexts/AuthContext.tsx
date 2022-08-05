@@ -9,8 +9,8 @@ type SignInCredentials = {
 }
 type User = {
   email: string;
-  permissions: string;
-  roles: string;
+  permissions: string[];
+  roles: string[];
 }
 type AuthContextData = {
   signIn(credentials: SignInCredentials): Promise<void>
