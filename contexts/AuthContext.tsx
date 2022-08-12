@@ -13,7 +13,8 @@ type User = {
   roles: string[];
 }
 type AuthContextData = {
-  signIn(credentials: SignInCredentials): Promise<void>
+  signIn: (credentials: SignInCredentials) => Promise<void>
+  signOut: () => void
   user: User;
   isAuthenticated: boolean;
 }
@@ -26,8 +27,8 @@ type AuthProviderProps = {
 export const AuthContext = createContext({} as AuthContextData);
 
 export function signOut(){
-  destroyCookie(undefined, 'nextAuth.token')
-  destroyCookie(undefined, 'nextAuth.refreshToken')
+  destroyCookie(undefined, 'nextAuth.token');
+  destroyCookie(undefined, 'nextAuth.refreshToken');
 
   Router.push('/');
 }
@@ -91,7 +92,7 @@ export function AuthProvider({children}: AuthProviderProps) {
   }
 
   return (
-    <AuthContext.Provider value={{signIn, isAuthenticated, user}}>
+    <AuthContext.Provider value={{signIn,signOut, isAuthenticated, user}}>
       {children}
     </AuthContext.Provider>
   )
