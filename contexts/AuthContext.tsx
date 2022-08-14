@@ -2,6 +2,7 @@ import Router from "next/router";
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { setCookie, parseCookies, destroyCookie } from 'nookies';
 import { api } from "../services/apiClient";
+import router from "next/router";
 
 type SignInCredentials = {
   email: string;
@@ -26,9 +27,13 @@ type AuthProviderProps = {
 
 export const AuthContext = createContext({} as AuthContextData);
 
+let authChannel: BroadcastChannel
+
 export function signOut(){
-  destroyCookie(undefined, 'nextAuth.token');
-  destroyCookie(undefined, 'nextAuth.refreshToken');
+  destroyCookie(undefined, 'nextauth.token');
+  destroyCookie(undefined, 'nextauth.refreshToken');
+
+  authChannel.postMessage('signOut');
 
   Router.push('/');
 }
@@ -36,6 +41,23 @@ export function signOut(){
 export function AuthProvider({children}: AuthProviderProps) {
   const [user, setUser] = useState<User>();
   const isAuthenticated = !!user;
+
+  useEffect(() => {
+    authChannel = new BroadcastChannel('auth');
+
+    authChannel.onmessage = (message) => {
+      switch (message.data) {
+        case 'signOut':
+          router.push('/');
+          break;
+        case 'signIn':
+          window.location.replace("http://localhost:3000/dashboard");
+          break;
+        default:
+          break;
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const { 'nextauth.token': token } = parseCookies();
@@ -84,7 +106,8 @@ export function AuthProvider({children}: AuthProviderProps) {
 
       api.defaults.headers['Authorization'] = `Bearer ${token}`;
 
-      Router.push('/dashboard')
+      Router.push('/dashboard');
+      authChannel.postMessage('signIn')
       
     } catch (error) {
       console.log(error)
